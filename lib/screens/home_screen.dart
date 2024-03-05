@@ -38,7 +38,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 decoration: const InputDecoration(labelText: "Enter Name Here"),
               ),
               TextField(
-                controller: nameController,
+                controller: ageController,
                 keyboardType: TextInputType.number,
                 decoration: const InputDecoration(labelText: "Enter Age Here"),
               ),
@@ -72,7 +72,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ),
       body: Consumer(builder: (context, ref, child) {
         final personList = ref.watch(personProvider);
-        return SingleChildScrollView(
+        return SizedBox(
+          height: MediaQuery.of(context).size.height,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -81,36 +82,38 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               const SizedBox(
                 height: 20.0,
               ),
-              ListView.builder(
-                itemCount: personList.length,
-                itemBuilder: (context, index) {
-                  final person = personList[index];
-                  return ListTile(
-                    title: GestureDetector(
-                        onTap: () async {
-                          final updatedPerson =
-                              await handlePopupWindow(context, person);
+              Expanded(
+                child: ListView.builder(
+                  itemCount: personList.length,
+                  itemBuilder: (context, index) {
+                    final person = personList[index];
+                    return ListTile(
+                      title: GestureDetector(
+                          onTap: () async {
+                            final updatedPerson =
+                                await handlePopupWindow(context, person);
 
-                          if (updatedPerson != null) {
-                            ref
-                                .read(personProvider.notifier)
-                                .updatePerson(updatedPerson);
-                          }
+                            if (updatedPerson != null) {
+                              ref
+                                  .read(personProvider.notifier)
+                                  .updatePerson(updatedPerson);
+                            }
+                          },
+                          child: Text(person.displayName)),
+                      trailing: IconButton(
+                        icon: const Icon(
+                          Icons.delete,
+                          color: Colors.red,
+                        ),
+                        onPressed: () {
+                          ref
+                              .read(personProvider.notifier)
+                              .removePerson(person.uuid);
                         },
-                        child: Text(person.displayName)),
-                    trailing: IconButton(
-                      icon: const Icon(
-                        Icons.delete,
-                        color: Colors.red,
                       ),
-                      onPressed: () {
-                        ref
-                            .read(personProvider.notifier)
-                            .removePerson(person.uuid);
-                      },
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
               )
             ],
           ),
